@@ -1,0 +1,46 @@
+#!/bin/sh
+#echo "@查找到的进程信息:"
+#ps -ef|grep $1|grep -v grep|grep -v jstack
+#ja=`whereis java|awk -F': ' '{print $2}'`
+#japaths=(${ja// / })
+#jnum=0
+#for japath in "${japaths[@]}" ;do
+#      ((jnum=$jnum+`find ${japath%java}|grep jstack|wc -l`))
+#done
+if [[ $1 != "" ]];then
+Occupancy=$2
+if [[ $2 == "" ]];then
+       Occupancy=85
+fi
+str=`ps -ef|grep $1|grep -v grep|grep -v jstack|awk '{print $2}'`
+#echo "-------------------------------------------------------"
+#echo "@占用最高的子进程:"
+#ps -mp $cpuid -o THREAD,tid,time|sort -nrk2|sed -n '2p'
+cpuids=(${str// / })
+for cpuid in "${cpuids[@]}" ;do
+if [[ ${#cpuid} > 1 ]] ;then
+	cpubuy=`ps -mp $cpuid -o THREAD,tid,time |sort -nrk2|sed -n '2p'|awk '{print $2}'`
+	if [[ $cpubuy > $Occupancy ]] ;then
+		tid=`ps -mp $cpuid -o THREAD,tid,time|sort -nrk2|sed -n '2p'|awk '{print $8}'`
+#		echo "-------------------------------------------------------"
+#		echo "@将子进程转换为16进制："
+		echo 进程id:$cpuid cpu占用:$cpubuy
+#		if [[ $jnum > 0 ]];then
+			if [[ $tid != "-" ]];then
+#				printf "%x\n" $tid
+				slid=`printf "%x\n" $tid`
+				echo "-------------------------------------------------------"
+				echo "@资源占用最高的函数:"
+				jstack $cpuid|grep $slid -A 30
+			fi
+#		else
+#			echo "找不到jdk内的jstack：检查系统是否已配置jdk，系统自带的jdk为精简版不支持jstack!"
+#		fi
+	fi
+	else
+		echo "找不到相关子进程!"
+fi
+done
+else
+	echo "参数不正确!"
+fi

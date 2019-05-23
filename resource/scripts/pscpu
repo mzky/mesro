@@ -1,0 +1,16 @@
+#!/bin/bash
+if [[ $1 != "" ]];then
+bcb=`ls /bin/bc 2>/dev/null|wc -l`
+bcu=`ls /usr/bin/bc 2>/dev/null|wc -l`
+((bcb=$bcb+$bcu))
+c=`grep cpu /proc/stat|wc -l`
+((c=$c-1))
+cpup=`ps aux|grep $1|grep -v grep|awk '{sum+=$3} END {print sum}'`
+if [[ $bcb > 0 ]];then
+	echo "scale=2;$cpup/$c" | bc
+else
+	echo "scale=2;$cpup/$c" | ./bc
+fi
+else
+	echo "参数错误!"
+fi
