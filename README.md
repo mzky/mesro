@@ -1,4 +1,5 @@
-# 项目调试阶段，暂不可使用
+# 因公司产品rigaga与本项目类似，为避免冲突，本项目暂停
+
 
 # mesro
 https://github.com/mzky/mesro/wiki/轮子选型
